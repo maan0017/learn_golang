@@ -1,0 +1,9 @@
+### Create Stock
+POST http://localhost:8080/api/new-stock
+Content-Type: application/json
+
+{
+  "name": "xyz",
+  "price": 200,
+  "company": "random-company"
+}

@@ -1,0 +1,5 @@
+### First request
+GET http://localhost:8080
+
+### Second request
+GET http://localhost:8080/123

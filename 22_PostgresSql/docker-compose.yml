@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: pg_container
+    restart: always
+    environment:
+      POSTGRES_USER: maan
+      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: golang_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: maan1234
+      POSTGRES_DB: golang_db
+
+volumes:
+  pgdata:

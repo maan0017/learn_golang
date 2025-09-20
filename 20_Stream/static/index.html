@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professional Media Player</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .header h1 {
+        color: white;
+        font-size: 2.2em;
+        font-weight: 300;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .main-container {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .player-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 30px;
+        position: relative;
+      }
+
+      .video-section {
+        background: rgba(0, 0, 0, 0.2);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .audio-section {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .player-title {
+        color: white;
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 300;
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+      }
+
+      .media-container {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(5px);
+      }
+
+      .video-player {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #000;
+      }
+
+      .audio-visualizer {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .audio-waves {
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        height: 100px;
+        gap: 3px;
+      }
+
+      .wave-bar {
+        width: 4px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 2px;
+        transition: height 0.1s ease;
+      }
+
+      .controls {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .control-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+      }
+
+      .control-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+
+      .play-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        width: 55px;
+        height: 55px;
+      }
+
+      .progress-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .progress {
+        height: 100%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        width: 0%;
+        transition: width 0.1s ease;
+      }
+
+      .time-info {
+        display: flex;
+        justify-content: space-between;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9em;
+      }
+
+      .volume-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .volume-slider {
+        width: 80px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .file-input {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        opacity: 0;
+        width: 80px;
+        height: 35px;
+        cursor: pointer;
+      }
+
+      .file-label {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9em;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .file-label:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .playlist {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        margin-top: 15px;
+        padding: 15px;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+
+      .playlist-item {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 8px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+        font-size: 0.9em;
+      }
+
+      .playlist-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .playlist-item.active {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .main-container {
+          flex-direction: column;
+        }
+
+        .video-section {
+          border-right: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .controls {
+          padding: 15px;
+          gap: 10px;
+        }
+
+        .control-btn {
+          width: 40px;
+          height: 40px;
+        }
+
+        .play-btn {
+          width: 50px;
+          height: 50px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Professional Media Player</h1>
+    </div>
+
+    <div class="main-container">
+      <!-- Video Player Section -->
+      <div class="player-section video-section">
+        <h2 class="player-title">Video Player</h2>
+        <div class="media-container">
+          <input
+            type="file"
+            id="videoFile"
+            class="file-input"
+            accept="video/*"
+          />
+          <label for="videoFile" class="file-label">Browse Video</label>
+
+          <video id="videoPlayer" class="video-player" controls>
+            <source src="http://localhost:8080/stream-video" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+
+          <div class="controls">
+            <button class="control-btn play-btn" id="videoPlayBtn">▶</button>
+            <button class="control-btn" id="videoMuteBtn">🔊</button>
+
+            <div class="progress-container">
+              <div class="progress-bar" id="videoProgressBar">
+                <div class="progress" id="videoProgress"></div>
+              </div>
+              <div class="time-info">
+                <span id="videoCurrentTime">0:00</span>
+                <span id="videoDuration">0:00</span>
+              </div>
+            </div>
+
+            <div class="volume-container">
+              <input
+                type="range"
+                id="videoVolume"
+                class="volume-slider"
+                min="0"
+                max="100"
+                value="50"
+              />
+            </div>
+
+            <button class="control-btn" id="videoFullscreen">⛶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Player Section -->
+      <div class="player-section audio-section">
+        <h2 class="player-title">Audio Player</h2>
+        <div class="media-container">
+          <input
+            type="file"
+            id="audioFile"
+            class="file-input"
+            accept="audio/*"
+            multiple
+          />
+          <label for="audioFile" class="file-label">Browse Audio</label>
+
+          <div class="audio-visualizer">
+            <div class="audio-waves" id="audioWaves"></div>
+          </div>
+
+          <audio
+            id="audioPlayer"
+            style="display: none"
+            src="http://localhost:8080/stream-audio"
+          ></audio>
+
+          <div class="controls">
+            <button class="control-btn" id="audioPrevBtn">⏮</button>
+            <button class="control-btn play-btn" id="audioPlayBtn">▶</button>
+            <button class="control-btn" id="audioNextBtn">⏭</button>
+            <button class="control-btn" id="audioMuteBtn">🔊</button>
+
+            <div class="progress-container">
+              <div class="progress-bar" id="audioProgressBar">
+                <div class="progress" id="audioProgress"></div>
+              </div>
+              <div class="time-info">
+                <span id="audioCurrentTime">0:00</span>
+                <span id="audioDuration">0:00</span>
+              </div>
+            </div>
+
+            <div class="volume-container">
+              <input
+                type="range"
+                id="audioVolume"
+                class="volume-slider"
+                min="0"
+                max="100"
+                value="50"
+              />
+            </div>
+
+            <button class="control-btn" id="audioRepeatBtn">🔁</button>
+          </div>
+        </div>
+
+        <div class="playlist" id="playlist" style="display: none">
+          <!-- Playlist items will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      class MediaPlayer {
+        constructor() {
+          this.initVideoPlayer();
+          this.initAudioPlayer();
+          this.createAudioVisualizer();
+        }
+
+        initVideoPlayer() {
+          this.video = document.getElementById("videoPlayer");
+          this.videoPlayBtn = document.getElementById("videoPlayBtn");
+          this.videoMuteBtn = document.getElementById("videoMuteBtn");
+          this.videoProgress = document.getElementById("videoProgress");
+          this.videoProgressBar = document.getElementById("videoProgressBar");
+          this.videoCurrentTime = document.getElementById("videoCurrentTime");
+          this.videoDuration = document.getElementById("videoDuration");
+          this.videoVolume = document.getElementById("videoVolume");
+          this.videoFullscreen = document.getElementById("videoFullscreen");
+          this.videoFile = document.getElementById("videoFile");
+
+          this.videoPlayBtn.addEventListener("click", () =>
+            this.togglePlay("video"),
+          );
+          this.videoMuteBtn.addEventListener("click", () =>
+            this.toggleMute("video"),
+          );
+          this.videoProgressBar.addEventListener("click", (e) =>
+            this.setProgress(e, "video"),
+          );
+          this.videoVolume.addEventListener("input", () =>
+            this.setVolume("video"),
+          );
+          this.videoFullscreen.addEventListener("click", () =>
+            this.toggleFullscreen(),
+          );
+          this.videoFile.addEventListener("change", (e) => this.loadVideo(e));
+
+          this.video.addEventListener("timeupdate", () =>
+            this.updateProgress("video"),
+          );
+          this.video.addEventListener("loadedmetadata", () =>
+            this.updateDuration("video"),
+          );
+          this.video.addEventListener("play", () =>
+            this.updatePlayButton("video", false),
+          );
+          this.video.addEventListener("pause", () =>
+            this.updatePlayButton("video", true),
+          );
+        }
+
+        initAudioPlayer() {
+          this.audio = document.getElementById("audioPlayer");
+          this.audioPlayBtn = document.getElementById("audioPlayBtn");
+          this.audioMuteBtn = document.getElementById("audioMuteBtn");
+          this.audioProgress = document.getElementById("audioProgress");
+          this.audioProgressBar = document.getElementById("audioProgressBar");
+          this.audioCurrentTime = document.getElementById("audioCurrentTime");
+          this.audioDuration = document.getElementById("audioDuration");
+          this.audioVolume = document.getElementById("audioVolume");
+          this.audioFile = document.getElementById("audioFile");
+          this.audioPrevBtn = document.getElementById("audioPrevBtn");
+          this.audioNextBtn = document.getElementById("audioNextBtn");
+          this.audioRepeatBtn = document.getElementById("audioRepeatBtn");
+          this.playlist = document.getElementById("playlist");
+
+          this.currentTrack = 0;
+          this.tracks = [];
+          this.isRepeat = false;
+
+          this.audioPlayBtn.addEventListener("click", () =>
+            this.togglePlay("audio"),
+          );
+          this.audioMuteBtn.addEventListener("click", () =>
+            this.toggleMute("audio"),
+          );
+          this.audioProgressBar.addEventListener("click", (e) =>
+            this.setProgress(e, "audio"),
+          );
+          this.audioVolume.addEventListener("input", () =>
+            this.setVolume("audio"),
+          );
+          this.audioFile.addEventListener("change", (e) => this.loadAudio(e));
+          this.audioPrevBtn.addEventListener("click", () =>
+            this.previousTrack(),
+          );
+          this.audioNextBtn.addEventListener("click", () => this.nextTrack());
+          this.audioRepeatBtn.addEventListener("click", () =>
+            this.toggleRepeat(),
+          );
+
+          this.audio.addEventListener("timeupdate", () =>
+            this.updateProgress("audio"),
+          );
+          this.audio.addEventListener("loadedmetadata", () =>
+            this.updateDuration("audio"),
+          );
+          this.audio.addEventListener("play", () =>
+            this.updatePlayButton("audio", false),
+          );
+          this.audio.addEventListener("pause", () =>
+            this.updatePlayButton("audio", true),
+          );
+          this.audio.addEventListener("ended", () => this.audioEnded());
+        }
+
+        createAudioVisualizer() {
+          const wavesContainer = document.getElementById("audioWaves");
+          for (let i = 0; i < 30; i++) {
+            const bar = document.createElement("div");
+            bar.className = "wave-bar";
+            bar.style.height = Math.random() * 50 + 10 + "px";
+            wavesContainer.appendChild(bar);
+          }
+
+          setInterval(() => {
+            if (!this.audio.paused) {
+              const bars = wavesContainer.querySelectorAll(".wave-bar");
+              bars.forEach((bar) => {
+                bar.style.height = Math.random() * 80 + 10 + "px";
+              });
+            }
+          }, 150);
+        }
+
+        togglePlay(type) {
+          const media = type === "video" ? this.video : this.audio;
+          if (media.paused) {
+            media.play();
+          } else {
+            media.pause();
+          }
+        }
+
+        toggleMute(type) {
+          const media = type === "video" ? this.video : this.audio;
+          const btn = type === "video" ? this.videoMuteBtn : this.audioMuteBtn;
+          media.muted = !media.muted;
+          btn.textContent = media.muted ? "🔇" : "🔊";
+        }
+
+        setProgress(e, type) {
+          const media = type === "video" ? this.video : this.audio;
+          const progressBar =
+            type === "video" ? this.videoProgressBar : this.audioProgressBar;
+          const clickX = e.offsetX;
+          const width = progressBar.offsetWidth;
+          const duration = media.duration;
+          media.currentTime = (clickX / width) * duration;
+        }
+
+        setVolume(type) {
+          const media = type === "video" ? this.video : this.audio;
+          const volumeSlider =
+            type === "video" ? this.videoVolume : this.audioVolume;
+          media.volume = volumeSlider.value / 100;
+        }
+
+        updateProgress(type) {
+          const media = type === "video" ? this.video : this.audio;
+          const progress =
+            type === "video" ? this.videoProgress : this.audioProgress;
+          const currentTime =
+            type === "video" ? this.videoCurrentTime : this.audioCurrentTime;
+
+          const progressPercent = (media.currentTime / media.duration) * 100;
+          progress.style.width = progressPercent + "%";
+          currentTime.textContent = this.formatTime(media.currentTime);
+        }
+
+        updateDuration(type) {
+          const media = type === "video" ? this.video : this.audio;
+          const duration =
+            type === "video" ? this.videoDuration : this.audioDuration;
+          duration.textContent = this.formatTime(media.duration);
+        }
+
+        updatePlayButton(type, isPaused) {
+          const btn = type === "video" ? this.videoPlayBtn : this.audioPlayBtn;
+          btn.textContent = isPaused ? "▶" : "⏸";
+        }
+
+        formatTime(seconds) {
+          if (isNaN(seconds)) return "0:00";
+          const mins = Math.floor(seconds / 60);
+          const secs = Math.floor(seconds % 60);
+          return `${mins}:${secs.toString().padStart(2, "0")}`;
+        }
+
+        toggleFullscreen() {
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          } else {
+            this.video.requestFullscreen();
+          }
+        }
+
+        loadVideo(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const url = URL.createObjectURL(file);
+            this.video.src = url;
+          }
+        }
+
+        loadAudio(e) {
+          const files = Array.from(e.target.files);
+          this.tracks = files.map((file) => ({
+            name: file.name,
+            url: URL.createObjectURL(file),
+          }));
+
+          if (this.tracks.length > 0) {
+            this.currentTrack = 0;
+            this.loadCurrentTrack();
+            this.createPlaylist();
+            this.playlist.style.display = "block";
+          }
+        }
+
+        loadCurrentTrack() {
+          if (this.tracks.length > 0) {
+            this.audio.src = this.tracks[this.currentTrack].url;
+            this.updatePlaylistDisplay();
+          }
+        }
+
+        createPlaylist() {
+          this.playlist.innerHTML = "";
+          this.tracks.forEach((track, index) => {
+            const item = document.createElement("div");
+            item.className = "playlist-item";
+            item.textContent = track.name;
+            item.addEventListener("click", () => {
+              this.currentTrack = index;
+              this.loadCurrentTrack();
+              this.audio.play();
+            });
+            this.playlist.appendChild(item);
+          });
+        }
+
+        updatePlaylistDisplay() {
+          const items = this.playlist.querySelectorAll(".playlist-item");
+          items.forEach((item, index) => {
+            item.classList.toggle("active", index === this.currentTrack);
+          });
+        }
+
+        previousTrack() {
+          if (this.tracks.length > 0) {
+            this.currentTrack =
+              (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
+            this.loadCurrentTrack();
+            this.audio.play();
+          }
+        }
+
+        nextTrack() {
+          if (this.tracks.length > 0) {
+            this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
+            this.loadCurrentTrack();
+            this.audio.play();
+          }
+        }
+
+        toggleRepeat() {
+          this.isRepeat = !this.isRepeat;
+          this.audioRepeatBtn.style.opacity = this.isRepeat ? "1" : "0.5";
+        }
+
+        audioEnded() {
+          if (this.isRepeat) {
+            this.audio.currentTime = 0;
+            this.audio.play();
+          } else {
+            this.nextTrack();
+          }
+        }
+      }
+
+      // Initialize the media player
+      document.addEventListener("DOMContentLoaded", () => {
+        new MediaPlayer();
+      });
+    </script>
+  </body>
+</html>

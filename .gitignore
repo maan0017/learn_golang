@@ -61,3 +61,44 @@ Thumbs.db
 # Go workspace
 bin/
 pkg/
+
+# Ignore audio files
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+
+# Ignore video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.flv
+*.webm
+
+# Ignore PDF files
+*.pdf
+
+# Ignore media
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.pdf
+*.zip
+*.tar
+*.gz
+*.exe
+*.dll

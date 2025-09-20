@@ -1,0 +1,46 @@
+<main class="w-full h-screen flex justify-center items-center">
+  <section class="w-1/2 h-full flex flex-col justify-center items-center">
+    <form action="" class="">
+      <h1 class="text-gray-800 text-2xl font-bold">Cloudinary Setup</h1>
+      <input
+        placeholder="pick a image"
+        type="file"
+        accept="image/*"
+        (change)="onFileSelection($event)"
+        class="cursor-pointer"
+      />
+    </form>
+    @if(uploading()){
+    <div class="mt-4 flex justify-center items-center">
+      <div
+        class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+      ></div>
+    </div>
+    }
+  </section>
+  <section
+    class="w-1/2 h-full flex flex-col justify-center items-center bg-gray-200 p-6 overflow-auto"
+  >
+    @if(imageDetails()){
+    <div class="w-full max-w-md bg-white rounded-xl shadow-md p-4 space-y-4">
+      <h3 class="text-lg font-semibold text-gray-800">Image Details:</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        <li><strong>Name:</strong> {{ imageDetails()?.name || 'N/A' }}</li>
+        <li><strong>Size:</strong> {{ imageDetails()?.size || 'N/A' }} bytes</li>
+        <li><strong>Type:</strong> {{ imageDetails()?.type || 'N/A' }}</li>
+        <li><strong>Format:</strong> {{ imageDetails()?.format || 'N/A' }}</li>
+      </ul>
+
+      @if(imageDetails()?.url){
+      <div class="flex justify-center">
+        <img
+          [src]="imageDetails()?.url"
+          alt="Image preview"
+          class="max-h-64 max-w-full rounded-lg border border-gray-300 shadow-sm object-contain"
+        />
+      </div>
+      }
+    </div>
+    }
+  </section>
+</main>
